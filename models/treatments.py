@@ -4,7 +4,7 @@ class Treatment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     patient_id = db.Column(db.Integer, db.ForeignKey("patient.id"), nullable=False)
     doctor_id = db.Column(db.Integer, db.ForeignKey("doctor.id"), nullable=False)
-    comments = db.Column(db.String(500), nullable=True)
+    comments = db.Column(db.String(500), nullable=False)
     diagnosis = db.Column(db.String(250), nullable=True)
     medications = db.Column(db.Text, nullable=True)
     procedure = db.Column(db.String(250), nullable=True)

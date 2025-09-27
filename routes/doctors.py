@@ -5,39 +5,38 @@ from models.doctors import Doctor
 
 doctor_routes = Blueprint("doctors", __name__)
 
-@doctor_routes.route("/", methods=["POST"])  
+@doctor_routes.route("", methods=["POST"])  
 @cross_origin(origin="http://localhost:3000")  
 def add_doctor():
     data = request.get_json()
     
     email = data.get("email")
     password = data.get("password")
+    specialization = data.get("specialization")
+    contact = data.get("contact")
+    name = data.get("name")
 
 
-    if not all([email, password]):
-        return jsonify({"error": "Missing required fields: email, password"}), 400
 
-    if len(password) < 8:
-        return jsonify({"error": "Password must be at least 8 characters long"}), 400
+    if not (name and specialization and contact):
+        return jsonify({"error": "Missing required fields"}), 400
 
 
-    existing = Doctor.query.filter_by(email=email).first()
+    existing = Doctor.query.filter_by(contact=contact).first()
     if existing:
-        return jsonify({"error": "Doctor with this email already exists"}), 400
+        return jsonify({"error": "Doctor with this contact already exists"}), 400
 
-    new_doctor = Doctor(
-        email=email, 
-    )
-    new_doctor.set_password(password)
-    
-    db.session.add(new_doctor)  
+    new_doctor = Doctor( email=email, specialization = specialization, contact = contact)
+    db.session.add(new_doctor)    
     db.session.commit()
 
+
     return jsonify({
-        "status": "doctor added successfully",
-        "doctor": {
-            "id": new_doctor.id, 
-            "email": new_doctor.email,
-            "name": f"{new_doctor.first_name} {new_doctor.last_name}"
-        } 
+        "status": "doctor added",
+        "doctor": new_doctor.to_dict()  # use your model’s to_dict()
     }), 201
+
+@doctor_routes.route("/", methods=["GET"])
+def list_doctors():
+    doctors = Doctor.query.all()
+    return jsonify([doc.to_dict() for doc in doctors]), 200
