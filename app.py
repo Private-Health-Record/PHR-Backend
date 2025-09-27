@@ -1,10 +1,13 @@
 from flask import Flask
-from models import db  # use the single shared db
+from flask_cors import CORS 
+from models import db
 
 def create_app():
     app = Flask(__name__)
     app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///phr.db"
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+
+    CORS(app, origins=["http://localhost:3000"])
 
     db.init_app(app)
 

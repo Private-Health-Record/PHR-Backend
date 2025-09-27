@@ -1,12 +1,17 @@
 from . import db
+from werkzeug.security import generate_password_hash
 
 class Doctor(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(40), nullable=False)
-    specialization = db.Column(db.String(120), nullable=False)
-    contact = db.Column(db.String(80), unique=True, nullable=False)
+    name = db.Column(db.String(40), nullable=True)
+    specialization = db.Column(db.String(120), nullable=True)
+    contact = db.Column(db.String(80), unique=True, nullable=True)
     treatments = db.relationship("Treatment", backref="doctor", lazy=True)
+
+    email = db.Column(db.String(120), unique=True, nullable=False) 
+    password_hash = db.Column(db.String(128), nullable=False) 
+
 
     hospital = db.Column(db.String(40), nullable=False)              
     intro = db.Column(db.Text, nullable=True)                         
@@ -14,6 +19,9 @@ class Doctor(db.Model):
     availability_from = db.Column(db.Time, nullable=True)             
     availability_to = db.Column(db.Time, nullable=True)               
     profile_pic_url = db.Column(db.String(250), nullable=True)        
+
+    def set_password(self, password):
+        self.password_hash = generate_password_hash(password)
 
     def to_dict(self):
         return {
