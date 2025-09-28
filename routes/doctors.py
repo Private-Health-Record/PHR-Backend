@@ -1,33 +1,40 @@
 from flask import Blueprint, request, jsonify
+from flask_cors import cross_origin
 from models import db
 from models.doctors import Doctor
 
 doctor_routes = Blueprint("doctors", __name__)
 
-@doctor_routes.route("", methods=["POST"])
+@doctor_routes.route("", methods=["POST"])  
+@cross_origin(origin="http://localhost:3000")  
 def add_doctor():
     data = request.get_json()
-    name = data.get("name")
+    
+    email = data.get("email")
+    password = data.get("password")
     specialization = data.get("specialization")
     contact = data.get("contact")
+    name = data.get("name")
+
+
 
     if not (name and specialization and contact):
-        return jsonify({"error": "Missing fields"}), 400
+        return jsonify({"error": "Missing required fields"}), 400
 
-    # Check if doctor already exists by contact
+
     existing = Doctor.query.filter_by(contact=contact).first()
     if existing:
         return jsonify({"error": "Doctor with this contact already exists"}), 400
 
-    new_doctor = Doctor(name=name, specialization=specialization, contact=contact)
-    db.session.add(new_doctor)
+    new_doctor = Doctor( email=email, specialization = specialization, contact = contact)
+    db.session.add(new_doctor)    
     db.session.commit()
+
 
     return jsonify({
         "status": "doctor added",
         "doctor": new_doctor.to_dict()  # use your model’s to_dict()
     }), 201
-
 
 @doctor_routes.route("/", methods=["GET"])
 def list_doctors():
